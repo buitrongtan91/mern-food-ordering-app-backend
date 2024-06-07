@@ -15,9 +15,9 @@ cloudinary.config({
 
 const app = express();
 
-app.use(express.json());
 app.use(cors());
-
+app.use("/order/checkout/webhook", express.raw({ type: "*/*" }));
+app.use(express.json());
 route(app);
 app.listen(5000, () => {
     console.log("Server is running on port 5000");

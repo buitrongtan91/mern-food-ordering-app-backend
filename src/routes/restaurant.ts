@@ -3,6 +3,7 @@ import RestaurantController from "../controllers/RestaurantController";
 import { jwtCheck, jwtParse } from "../middlewares/auth";
 import { validateRestaurantRequest } from "../middlewares/validation";
 import multer from "multer";
+import { param } from "express-validator";
 const router = express.Router();
 
 const storage = multer.memoryStorage();
@@ -31,5 +32,17 @@ router.put(
 );
 
 router.get("/get-restaurant", jwtCheck, jwtParse, RestaurantController.getRestaurant);
+
+router.get(
+    "/search/:city",
+    param("city").isString().trim().notEmpty().withMessage("City parameter must be a valid string"),
+    RestaurantController.searchRestaurants
+);
+
+router.get(
+    "/:id",
+    param("id").isString().trim().notEmpty().withMessage("Restaurant id parameter must be a valid string"),
+    RestaurantController.getRestaurantById
+);
 
 export default router;

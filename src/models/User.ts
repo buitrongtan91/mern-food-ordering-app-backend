@@ -4,6 +4,7 @@ import mongoose from "mongoose";
 const userSchema = new mongoose.Schema({
     _id: {
         type: ObjectId,
+        auto: true,
     },
     auth0Id: {
         type: String,
