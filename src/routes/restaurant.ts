@@ -38,11 +38,14 @@ router.get(
     param("city").isString().trim().notEmpty().withMessage("City parameter must be a valid string"),
     RestaurantController.searchRestaurants
 );
+router.get("/order", jwtCheck, jwtParse, RestaurantController.getOrders);
 
 router.get(
     "/:id",
     param("id").isString().trim().notEmpty().withMessage("Restaurant id parameter must be a valid string"),
     RestaurantController.getRestaurantById
 );
+
+router.patch("/order/:orderId/status", jwtCheck, jwtParse, RestaurantController.updateOrderStatus);
 
 export default router;

@@ -86,6 +86,16 @@ const stripeWebhookHandler = async (req: Request, res: Response) => {
     res.status(200).send();
 };
 
+const getOrders = async (req: Request, res: Response) => {
+    try {
+        const orders = await Order.find({ user: req.userId }).populate("restaurant").populate("user");
+        res.json(orders);
+    } catch (error) {
+        console.log(error);
+        res.status(500).json({ message: "Internal server error" });
+    }
+};
+
 const createLineItems = (checkoutSessionRequest: CheckoutSessionRequest, menuItems: MenuItemType[]) => {
     const lineItems = checkoutSessionRequest.cartItems.map((cartItem) => {
         const menuItem = menuItems.find((menuItem) => menuItem._id.toString() === cartItem.menuItemId);
@@ -141,4 +151,4 @@ const createSession = async (
     return sessionData;
 };
 
-export default { createCheckoutSession, stripeWebhookHandler };
+export default { createCheckoutSession, stripeWebhookHandler, getOrders };

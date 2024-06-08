@@ -2,6 +2,7 @@ import { Request, Response } from "express";
 import Restaurant from "../models/Restaurant";
 import cloudinary from "cloudinary";
 import mongoose from "mongoose";
+import Order from "../models/Order";
 
 const createRestaurant = async (req: Request, res: Response) => {
     try {
@@ -144,4 +145,54 @@ const getRestaurantById = async (req: Request, res: Response) => {
     }
 };
 
-export default { createRestaurant, getRestaurant, updateRestaurant, searchRestaurants, getRestaurantById };
+const getOrders = async (req: Request, res: Response) => {
+    try {
+        const restaurant = await Restaurant.findOne({ user: req.userId });
+        if (!restaurant) {
+            return res.status(404).json({ message: "Restaurant not found" });
+        }
+
+        const orders = await Order.find({ restaurant: restaurant._id }).populate("user").populate("restaurant");
+        res.json(orders);
+        console.log(restaurant);
+    } catch (error) {
+        console.log(error);
+        res.status(500).json({ message: "Error fetching orders" });
+    }
+};
+
+const updateOrderStatus = async (req: Request, res: Response) => {
+    try {
+        const { orderId } = req.params;
+        const { status } = req.body;
+
+        const order = await Order.findById(orderId);
+        if (!order) {
+            return res.status(404).json({ message: "Order not found" });
+        }
+
+        const restaurant = await Restaurant.findById(order.restaurant);
+
+        if (restaurant?.user?.toString() !== req.userId) {
+            return res.status(403).json({ message: "Unauthorized" });
+        }
+
+        order.status = status;
+        await order.save();
+
+        res.status(200).json(order);
+    } catch (error) {
+        console.log(error);
+        res.status(500).json({ message: "Internal server error" });
+    }
+};
+
+export default {
+    createRestaurant,
+    getRestaurant,
+    updateRestaurant,
+    searchRestaurants,
+    getRestaurantById,
+    getOrders,
+    updateOrderStatus,
+};
